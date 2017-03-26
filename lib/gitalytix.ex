@@ -5,12 +5,12 @@ defmodule Gitalytix do
   end
 
   def process([]) do
-    log = GitLog.get_log |> GitLog.get_blocks
-    IO.puts log
+    GitLog.main
   end
 
   def process(options) do
-    IO.puts "Hello #{options[:name]}"
+    # Here goes code when gitalytix is called with arguments
+    options # so the compiler doesn't complain
   end
 
   defp parse_args(args) do
