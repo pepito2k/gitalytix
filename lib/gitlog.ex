@@ -20,8 +20,7 @@ defmodule GitLog do
   defp get_commits(log_string) do
     regex = ~r/^(?<hash>[a-f0-9]{40}) (?<date>.{25}) (?<name>.*?) \<(?<email>.*?)\> (?<subject>.*?) .::.(?<summary>.*)$/mus
     Regex.split(~r/(?<tag>#)[a-f0-9]{40}/, log_string, on: [:tag], trim: true)
-    |> Enum.map(fn x -> String.strip(x) end)
-    |> Enum.map(fn x -> Regex.named_captures(regex, x) end)
+    |> Enum.map(fn x -> Regex.named_captures(regex, String.strip(x)) end)
   end
 
   defp get_author_commits(commits, author) do
@@ -37,8 +36,8 @@ defmodule GitLog do
     commits_dates = author_commits |> Enum.map(&(Map.get(&1, "date"))) |> Enum.map(&(elem(DateTime.from_iso8601(&1), 1)))
 
     author = Map.put(author, :count, Enum.count(author_commits))
-    author = Map.put(author, :first_commit, Enum.min(commits_dates))
-    author = Map.put(author, :last_commit, Enum.max(commits_dates))
+    author = Map.put(author, :first_commit, Enum.min_by(commits_dates, &DateTime.to_unix/1))
+    author = Map.put(author, :last_commit, Enum.max_by(commits_dates, &DateTime.to_unix/1))
 
     commits_dates_diff = gregorian_day_for_datetime(author[:last_commit]) - gregorian_day_for_datetime(author[:first_commit])
     author = Map.put(author, :date_span, commits_dates_diff)
@@ -58,6 +57,5 @@ defmodule GitLog do
   end
 
   defp print_summary([]) do
-
   end
 end
